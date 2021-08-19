@@ -1,0 +1,258 @@
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <Obj RefId="0">
+    <TN RefId="0">
+      <T>Server</T>
+      <T>Automata</T>
+      <T>System.Object</T>
+    </TN>
+    <ToString>Server</ToString>
+    <Props>
+      <Obj N="OperatingSystem" RefId="1">
+        <TN RefId="1">
+          <T>ServerOSVersion</T>
+          <T>System.Enum</T>
+          <T>System.ValueType</T>
+          <T>System.Object</T>
+        </TN>
+        <ToString>Server2019</ToString>
+        <I32>2</I32>
+      </Obj>
+      <Obj N="Roles" RefId="2">
+        <TN RefId="2">
+          <T>ServerRoles</T>
+          <T>System.Enum</T>
+          <T>System.ValueType</T>
+          <T>System.Object</T>
+        </TN>
+        <ToString>None</ToString>
+        <I32>0</I32>
+      </Obj>
+      <Obj N="UserInterface" RefId="3">
+        <TN RefId="3">
+          <T>UserInterface</T>
+          <T>System.Enum</T>
+          <T>System.ValueType</T>
+          <T>System.Object</T>
+        </TN>
+        <ToString>Core</ToString>
+        <I32>1</I32>
+      </Obj>
+      <I32 N="ExtraStorageSize">0</I32>
+      <I32 N="ExtraDisks">0</I32>
+      <S N="Hostname">antheia</S>
+      <S N="Path">C:\Users\Public\Documents\Hyper-V\Networks\SEFFNER\servers\Antheia\</S>
+      <S N="Notes">Hostname: antheia,_x000A_automataType: Server,_x000A_osVersion: Server2019,_x000A_userInterface: Core,_x000A_Address: 192.168.44.3,_x000A_Path: C:\Users\Public\Documents\Hyper-V\Networks\SEFFNER\servers\Antheia\</S>
+      <I32 N="DiskGigaBytes">60</I32>
+      <I32 N="MemoryGigaBytes">1</I32>
+      <Obj N="Network" RefId="4">
+        <TN RefId="4">
+          <T>Network</T>
+          <T>System.Object</T>
+        </TN>
+        <ToString>Network</ToString>
+        <Props>
+          <S N="Name">Seffner</S>
+          <S N="Path">C:\Users\Public\Documents\Hyper-V\Networks\SEFFNER\</S>
+          <S N="Tree">VTree</S>
+          <Obj N="ID" RefId="5">
+            <TN RefId="5">
+              <T>System.Net.IPAddress</T>
+              <T>System.Object</T>
+            </TN>
+            <ToString>192.168.44.0</ToString>
+            <Props>
+              <S N="AddressFamily">InterNetwork</S>
+              <B N="IsIPv6Multicast">false</B>
+              <B N="IsIPv6LinkLocal">false</B>
+              <B N="IsIPv6SiteLocal">false</B>
+              <B N="IsIPv6Teredo">false</B>
+              <B N="IsIPv4MappedToIPv6">false</B>
+              <I64 N="Address">2926784</I64>
+            </Props>
+            <MS>
+              <S N="IPAddressToString">192.168.44.0</S>
+            </MS>
+          </Obj>
+          <I32 N="MaskLength">25</I32>
+          <I32 N="Capacity">126</I32>
+          <S N="Switch">VMSwitch (Name = 'SEFFNER_Private') [Id = 'd02c4acc-4b01-4d4e-9621-ea63e8b989b3']</S>
+        </Props>
+      </Obj>
+      <Obj N="Address" RefId="6">
+        <TNRef RefId="5" />
+        <ToString>192.168.44.3</ToString>
+        <Props>
+          <S N="AddressFamily">InterNetwork</S>
+          <B N="IsIPv6Multicast">false</B>
+          <B N="IsIPv6LinkLocal">false</B>
+          <B N="IsIPv6SiteLocal">false</B>
+          <B N="IsIPv6Teredo">false</B>
+          <B N="IsIPv4MappedToIPv6">false</B>
+          <I64 N="Address">53258432</I64>
+        </Props>
+        <MS>
+          <S N="IPAddressToString">192.168.44.3</S>
+        </MS>
+      </Obj>
+      <Obj N="Machine" RefId="7">
+        <TN RefId="6">
+          <T>Microsoft.HyperV.PowerShell.VirtualMachine</T>
+          <T>Microsoft.HyperV.PowerShell.VirtualMachineBase</T>
+          <T>Microsoft.HyperV.PowerShell.ComputeResource</T>
+          <T>Microsoft.HyperV.PowerShell.VirtualizationObject</T>
+          <T>System.Object</T>
+        </TN>
+        <ToString>VirtualMachine (Name = 'SEFFNER_Antheia') [Id = '451a0c82-2d1e-41a5-80a8-9bdfebda9aa5']</ToString>
+        <Props>
+          <S N="ConfigurationLocation">C:\ProgramData\Microsoft\Windows\Hyper-V</S>
+          <B N="SmartPagingFileInUse">false</B>
+          <S N="SmartPagingFilePath">C:\ProgramData\Microsoft\Windows\Hyper-V</S>
+          <S N="SnapshotFileLocation">C:\ProgramData\Microsoft\Windows\Hyper-V</S>
+          <S N="AutomaticStartAction">StartIfRunning</S>
+          <I32 N="AutomaticStartDelay">0</I32>
+          <S N="AutomaticStopAction">Save</S>
+          <S N="AutomaticCriticalErrorAction">Pause</S>
+          <I32 N="AutomaticCriticalErrorActionTimeout">30</I32>
+          <B N="AutomaticCheckpointsEnabled">true</B>
+          <I32 N="CPUUsage">0</I32>
+          <I64 N="MemoryAssigned">0</I64>
+          <I64 N="MemoryDemand">0</I64>
+          <S N="MemoryStatus"></S>
+          <Nil N="NumaAligned" />
+          <I32 N="NumaNodesCount">1</I32>
+          <I32 N="NumaSocketCount">1</I32>
+          <Nil N="Heartbeat" />
+          <S N="IntegrationServicesState"></S>
+          <Version N="IntegrationServicesVersion">0.0</Version>
+          <TS N="Uptime">PT0S</TS>
+          <Obj N="OperationalStatus" RefId="8">
+            <TN RefId="7">
+              <T>Microsoft.HyperV.PowerShell.VMOperationalStatus[]</T>
+              <T>System.Array</T>
+              <T>System.Object</T>
+            </TN>
+            <LST>
+              <S>Ok</S>
+            </LST>
+          </Obj>
+          <S N="PrimaryOperationalStatus">Ok</S>
+          <Nil N="SecondaryOperationalStatus" />
+          <Obj N="StatusDescriptions" RefId="9">
+            <TN RefId="8">
+              <T>System.String[]</T>
+              <T>System.Array</T>
+              <T>System.Object</T>
+            </TN>
+            <LST>
+              <S>Operating normally</S>
+            </LST>
+          </Obj>
+          <S N="PrimaryStatusDescription">Operating normally</S>
+          <Nil N="SecondaryStatusDescription" />
+          <S N="Status">Operating normally</S>
+          <S N="ReplicationHealth">NotApplicable</S>
+          <S N="ReplicationMode">None</S>
+          <S N="ReplicationState">Disabled</S>
+          <B N="ResourceMeteringEnabled">false</B>
+          <S N="CheckpointType">Standard</S>
+          <S N="EnhancedSessionTransportType">VMBus</S>
+          <Obj N="Groups" RefId="10">
+            <TN RefId="9">
+              <T>System.Collections.ObjectModel.ReadOnlyCollection`1[[Microsoft.HyperV.PowerShell.VMGroup, Microsoft.HyperV.PowerShell.Objects, Version=10.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+              <T>System.Object</T>
+            </TN>
+            <LST />
+          </Obj>
+          <S N="Version">9.0</S>
+          <S N="VirtualMachineType">RealizedVirtualMachine</S>
+          <S N="VirtualMachineSubType">Generation2</S>
+          <S N="Notes">Hostname: antheia,_x000A_automataType: Server,_x000A_osVersion: Server2019,_x000A_userInterface: Core,_x000A_Address: 192.168.44.3,_x000A_Path: C:\Users\Public\Documents\Hyper-V\Networks\SEFFNER\servers\Antheia\</S>
+          <S N="State">Off</S>
+          <S N="ComPort1">VMComPort (Name = 'COM 1', VMName = 'SEFFNER_Antheia') [Id = 'Microsoft:451A0C82-2D1E-41A5-80A8-9BDFEBDA9AA5\8E3A359F-559A-4B6A-98A9-1690A6100ED7\0', VMId = '451a0c82-2d1e-41a5-80a8-9bdfebda9aa5']</S>
+          <S N="ComPort2">VMComPort (Name = 'COM 2', VMName = 'SEFFNER_Antheia') [Id = 'Microsoft:451A0C82-2D1E-41A5-80A8-9BDFEBDA9AA5\8E3A359F-559A-4B6A-98A9-1690A6100ED7\1', VMId = '451a0c82-2d1e-41a5-80a8-9bdfebda9aa5']</S>
+          <Obj N="DVDDrives" RefId="11">
+            <TN RefId="10">
+              <T>Microsoft.HyperV.PowerShell.DvdDrive[]</T>
+              <T>System.Array</T>
+              <T>System.Object</T>
+            </TN>
+            <LST>
+              <S>DvdDrive (Name = 'DVD Drive on SCSI controller number 0 at location 1', VMName = 'SEFFNER_Antheia') [Id = 'Microsoft:451A0C82-2D1E-41A5-80A8-9BDFEBDA9AA5\65A8DBDC-E7F6-46FD-9C2A-BC0F9A6F29D9\0\1\D', VMId = '451a0c82-2d1e-41a5-80a8-9bdfebda9aa5']</S>
+            </LST>
+          </Obj>
+          <Obj N="FibreChannelHostBusAdapters" RefId="12">
+            <TN RefId="11">
+              <T>System.Collections.Generic.List`1[[Microsoft.HyperV.PowerShell.VMFibreChannelHba, Microsoft.HyperV.PowerShell.Objects, Version=10.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+              <T>System.Object</T>
+            </TN>
+            <LST />
+          </Obj>
+          <Nil N="FloppyDrive" />
+          <Obj N="HardDrives" RefId="13">
+            <TN RefId="12">
+              <T>Microsoft.HyperV.PowerShell.HardDiskDrive[]</T>
+              <T>System.Array</T>
+              <T>System.Object</T>
+            </TN>
+            <LST>
+              <S>HardDiskDrive (Name = 'Hard Drive on SCSI controller number 0 at location 0', VMName = 'SEFFNER_Antheia') [Id = 'Microsoft:451A0C82-2D1E-41A5-80A8-9BDFEBDA9AA5\65A8DBDC-E7F6-46FD-9C2A-BC0F9A6F29D9\0\0\D', VMId = '451a0c82-2d1e-41a5-80a8-9bdfebda9aa5']</S>
+            </LST>
+          </Obj>
+          <Nil N="RemoteFxAdapter" />
+          <Obj N="VMIntegrationService" RefId="14">
+            <TN RefId="13">
+              <T>System.Collections.Generic.List`1[[Microsoft.HyperV.PowerShell.VMIntegrationComponent, Microsoft.HyperV.PowerShell.Objects, Version=10.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+              <T>System.Object</T>
+            </TN>
+            <LST>
+              <S>GuestServiceInterfaceComponent (Name = 'Guest Service Interface', VMName = 'SEFFNER_Antheia') [Id = 'Microsoft:451A0C82-2D1E-41A5-80A8-9BDFEBDA9AA5\6C09BB55-D683-4DA0-8931-C9BF705F6480', VMId = '451a0c82-2d1e-41a5-80a8-9bdfebda9aa5']</S>
+              <S>VMIntegrationComponent (Name = 'Heartbeat', VMName = 'SEFFNER_Antheia') [Id = 'Microsoft:451A0C82-2D1E-41A5-80A8-9BDFEBDA9AA5\84EAAE65-2F2E-45F5-9BB5-0E857DC8EB47', VMId = '451a0c82-2d1e-41a5-80a8-9bdfebda9aa5']</S>
+              <S>DataExchangeComponent (Name = 'Key-Value Pair Exchange', VMName = 'SEFFNER_Antheia') [Id = 'Microsoft:451A0C82-2D1E-41A5-80A8-9BDFEBDA9AA5\2A34B1C2-FD73-4043-8A5B-DD2159BC743F', VMId = '451a0c82-2d1e-41a5-80a8-9bdfebda9aa5']</S>
+              <S>ShutdownComponent (Name = 'Shutdown', VMName = 'SEFFNER_Antheia') [Id = 'Microsoft:451A0C82-2D1E-41A5-80A8-9BDFEBDA9AA5\9F8233AC-BE49-4C79-8EE3-E7E1985B2077', VMId = '451a0c82-2d1e-41a5-80a8-9bdfebda9aa5']</S>
+              <S>VMIntegrationComponent (Name = 'Time Synchronization', VMName = 'SEFFNER_Antheia') [Id = 'Microsoft:451A0C82-2D1E-41A5-80A8-9BDFEBDA9AA5\2497F4DE-E9FA-4204-80E4-4B75C46419C0', VMId = '451a0c82-2d1e-41a5-80a8-9bdfebda9aa5']</S>
+              <S>VMIntegrationComponent (Name = 'VSS', VMName = 'SEFFNER_Antheia') [Id = 'Microsoft:451A0C82-2D1E-41A5-80A8-9BDFEBDA9AA5\5CED1297-4598-4915-A5FC-AD21BB4D02A4', VMId = '451a0c82-2d1e-41a5-80a8-9bdfebda9aa5']</S>
+            </LST>
+          </Obj>
+          <B N="DynamicMemoryEnabled">true</B>
+          <I64 N="MemoryMaximum">1099511627776</I64>
+          <I64 N="MemoryMinimum">536870912</I64>
+          <I64 N="MemoryStartup">1073741824</I64>
+          <I64 N="ProcessorCount">1</I64>
+          <B N="BatteryPassthroughEnabled">true</B>
+          <I32 N="Generation">2</I32>
+          <B N="IsClustered">false</B>
+          <Nil N="ParentSnapshotId" />
+          <Nil N="ParentSnapshotName" />
+          <S N="Path">C:\ProgramData\Microsoft\Windows\Hyper-V</S>
+          <I64 N="SizeOfSystemFiles">73728</I64>
+          <B N="GuestControlledCacheTypes">false</B>
+          <U32 N="LowMemoryMappedIoSpace">134217728</U32>
+          <U64 N="HighMemoryMappedIoSpace">536870912</U64>
+          <S N="LockOnDisconnect">Off</S>
+          <DT N="CreationTime">2021-08-17T15:24:17.256123-05:00</DT>
+          <G N="Id">451a0c82-2d1e-41a5-80a8-9bdfebda9aa5</G>
+          <S N="Name">SEFFNER_Antheia</S>
+          <Obj N="NetworkAdapters" RefId="15">
+            <TN RefId="14">
+              <T>System.Collections.Generic.List`1[[Microsoft.HyperV.PowerShell.VMNetworkAdapter, Microsoft.HyperV.PowerShell.Objects, Version=10.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+              <T>System.Object</T>
+            </TN>
+            <LST>
+              <S>VMNetworkAdapter (Name = 'Network Adapter', VMName = 'SEFFNER_Antheia') [VMId = '451a0c82-2d1e-41a5-80a8-9bdfebda9aa5']</S>
+            </LST>
+          </Obj>
+          <S N="CimSession">CimSession: .</S>
+          <S N="ComputerName">TAXILA</S>
+          <B N="IsDeleted">false</B>
+        </Props>
+        <MS>
+          <Nil N="ParentCheckpointId" />
+          <Nil N="ParentCheckpointName" />
+          <S N="VMName">SEFFNER_Antheia</S>
+          <G N="VMId">451a0c82-2d1e-41a5-80a8-9bdfebda9aa5</G>
+          <S N="CheckpointFileLocation">C:\ProgramData\Microsoft\Windows\Hyper-V</S>
+        </MS>
+      </Obj>
+    </Props>
+  </Obj>
+</Objs>

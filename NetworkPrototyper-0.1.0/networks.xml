@@ -1,0 +1,120 @@
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <Obj RefId="0">
+    <TN RefId="0">
+      <T>Network</T>
+      <T>System.Object</T>
+    </TN>
+    <ToString>Network</ToString>
+    <Props>
+      <S N="Name">Princeton</S>
+      <S N="Path">C:\Users\Public\Documents\Hyper-V\Networks\PRINCETON\</S>
+      <Obj N="Tree" RefId="1">
+        <TN RefId="1">
+          <T>VTree</T>
+          <T>System.Object</T>
+        </TN>
+        <ToString>VTree</ToString>
+        <Props>
+          <S N="Name">princeton</S>
+          <S N="Terminator">VMGroup (Name = 'princeton_terminator') [InstanceId = 'cc8d951b-d8f9-4bc7-a99e-a3ac1115e06c']</S>
+          <S N="Root">VMGroup (Name = 'princeton_root') [InstanceId = 'e8199c84-7da9-4c5f-ae1d-a854e5a27d31']</S>
+          <S N="Servers">VMGroup (Name = 'princeton_servers') [InstanceId = 'dfbd8aa7-c95d-4d45-89ba-dc4592d54c4b']</S>
+          <S N="Workstations">VMGroup (Name = 'princeton_workstations') [InstanceId = '5151b5cd-f448-4c4c-b0b8-f8bb4d86474c']</S>
+        </Props>
+      </Obj>
+      <Obj N="ID" RefId="2">
+        <TN RefId="2">
+          <T>System.Net.IPAddress</T>
+          <T>System.Object</T>
+        </TN>
+        <ToString>192.168.135.0</ToString>
+        <Props>
+          <S N="AddressFamily">InterNetwork</S>
+          <B N="IsIPv6Multicast">false</B>
+          <B N="IsIPv6LinkLocal">false</B>
+          <B N="IsIPv6SiteLocal">false</B>
+          <B N="IsIPv6Teredo">false</B>
+          <B N="IsIPv4MappedToIPv6">false</B>
+          <I64 N="Address">8890560</I64>
+        </Props>
+        <MS>
+          <S N="IPAddressToString">192.168.135.0</S>
+        </MS>
+      </Obj>
+      <I32 N="MaskLength">25</I32>
+      <I32 N="Capacity">126</I32>
+      <Obj N="Switch" RefId="3">
+        <TN RefId="3">
+          <T>Microsoft.HyperV.PowerShell.VMSwitch</T>
+          <T>Microsoft.HyperV.PowerShell.VirtualizationObject</T>
+          <T>System.Object</T>
+        </TN>
+        <ToString>VMSwitch (Name = 'PRINCETON_Private') [Id = '0b1a59a6-637a-47fc-9015-daac982c0187']</ToString>
+        <Props>
+          <S N="Name">PRINCETON_Private</S>
+          <G N="Id">0b1a59a6-637a-47fc-9015-daac982c0187</G>
+          <S N="Notes">192.168.135.0/25</S>
+          <Obj N="Extensions" RefId="4">
+            <TN RefId="4">
+              <T>Microsoft.HyperV.PowerShell.VMSwitchExtension[]</T>
+              <T>System.Array</T>
+              <T>System.Object</T>
+            </TN>
+            <LST>
+              <S>VMSwitchExtension (Name = 'Microsoft Windows Filtering Platform') [Id = 'E7C3B2F0-F3C5-48DF-AF2B-10FED6D72E7A']</S>
+              <S>VMSwitchExtension (Name = 'Microsoft Azure VFP Switch Extension') [Id = 'E9B59CFA-2BE1-4B21-828F-B6FBDBDDC017']</S>
+              <S>VMSwitchExtension (Name = 'Microsoft NDIS Capture') [Id = '430BDADD-BAB0-41AB-A369-94B67FA5BE0A']</S>
+            </LST>
+          </Obj>
+          <S N="BandwidthReservationMode">Absolute</S>
+          <B N="PacketDirectEnabled">false</B>
+          <B N="EmbeddedTeamingEnabled">false</B>
+          <B N="IovEnabled">false</B>
+          <S N="SwitchType">Private</S>
+          <B N="AllowManagementOS">false</B>
+          <Nil N="NetAdapterInterfaceDescription" />
+          <Nil N="NetAdapterInterfaceDescriptions" />
+          <Nil N="NetAdapterInterfaceGuid" />
+          <B N="IovSupport">false</B>
+          <Nil N="IovSupportReasons" />
+          <U32 N="AvailableIPSecSA">0</U32>
+          <U32 N="NumberIPSecSAAllocated">0</U32>
+          <U32 N="AvailableVMQueues">0</U32>
+          <U32 N="NumberVmqAllocated">0</U32>
+          <U32 N="IovQueuePairCount">0</U32>
+          <U32 N="IovQueuePairsInUse">0</U32>
+          <U32 N="IovVirtualFunctionCount">0</U32>
+          <U32 N="IovVirtualFunctionsInUse">0</U32>
+          <B N="PacketDirectInUse">false</B>
+          <B N="DefaultQueueVrssEnabledRequested">true</B>
+          <B N="DefaultQueueVrssEnabled">false</B>
+          <B N="DefaultQueueVmmqEnabledRequested">true</B>
+          <B N="DefaultQueueVmmqEnabled">false</B>
+          <U32 N="DefaultQueueVrssMaxQueuePairsRequested">16</U32>
+          <U32 N="DefaultQueueVrssMaxQueuePairs">0</U32>
+          <U32 N="DefaultQueueVrssMinQueuePairsRequested">1</U32>
+          <U32 N="DefaultQueueVrssMinQueuePairs">0</U32>
+          <S N="DefaultQueueVrssQueueSchedulingModeRequested">StaticVrss</S>
+          <S N="DefaultQueueVrssQueueSchedulingMode">Dynamic</S>
+          <B N="DefaultQueueVrssExcludePrimaryProcessorRequested">false</B>
+          <B N="DefaultQueueVrssExcludePrimaryProcessor">false</B>
+          <B N="SoftwareRscEnabled">false</B>
+          <U32 N="BandwidthPercentage">0</U32>
+          <U64 N="DefaultFlowMinimumBandwidthAbsolute">0</U64>
+          <U64 N="DefaultFlowMinimumBandwidthWeight">0</U64>
+          <S N="CimSession">CimSession: .</S>
+          <S N="ComputerName">TAXILA</S>
+          <B N="IsDeleted">false</B>
+        </Props>
+        <MS>
+          <U32 N="DefaultQueueVmmqQueuePairs">0</U32>
+          <U32 N="DefaultQueueVmmqQueuePairsRequested">16</U32>
+        </MS>
+      </Obj>
+    </Props>
+  </Obj>
+</Objs>
+xml                            Objects
+---                            -------
+version="1.0" encoding="utf-8" Objects
+

@@ -23,6 +23,8 @@ $global:WINDOWS_10_ISO_PATH = "C:\Users\griot\Downloads\Windows_10_2020_04_14.IS
 [int64] $global:BYTES_PER_MEGABYTE = 1048576
 [int64] $global:BYTES_PER_GIGABYTE = 1073741824
 
+[string] $global:XML_FILE = $global:BASE_NETWORK_PATH + "networks_database.xml"
+
 
 ### ------------------> Enums <------------------
 enum TraversalDestination {
@@ -118,30 +120,25 @@ class VTree {
         $this.Root.VMGroupMembers | ForEach-Object {
             $branches += $_
         }
-
 		return $branches
         
 	} # <--- close branches
 
 
 	[Microsoft.HyperV.PowerShell.VMGroup] traverse ([TraversalDestination] $destination) {
+		[string] $branchName = $this.Name + "_" + $destination.toString()
         [Microsoft.HyperV.PowerShell.VMGroup] $branch = $null
 
-        [string] $branchName = $this.Name + "_" + $destination.toString()
         $branch = $this.branches() | Where-Object { $_.Name -eq $branchName }
-
 		return $branch
 
 	} # <--- close traverse
 
 
-    #------------------ Setters  -------------------#
-
-
-	#------------------ Methods -------------------#
+    #------------------ Setters --------------------#
+	#------------------ Methods --------------------#
     [Bool] exsists ([string] $treeName) {
         [bool] $isNull = $null -eq ( Get-VMGroup | Where-Object {$_.Name -eq $treeName} )
-
         return $isNull
 
     } # <--- close exsists
@@ -827,7 +824,6 @@ class Automata {
 	Automata ([string] $name, [int] $memoryGigs, [int] $diskGigs, [Network] $network) {
 		$this.Network = $network
 		$this.Hostname = $this.hostNameHandler($name)
-	#	$this.Path = $this.pathBuilder($name)
 		$this.MemoryGigaBytes = $memoryGigs
 		$this.DiskGigaBytes = $diskGigs
 
@@ -872,6 +868,17 @@ hidden [string] pathBuilder ([string] $name) {
 
 
 hidden [string] hostNameHandler ([string] $name) {
+	<#
+	.SYNOPSIS
+	Checks is any hosts in the network already have the name. Returns [string]
+
+	.DESCRIPTION
+	If any virtual machines in the network are using the $name throws an error else returns the name back
+
+	.PARAMETER name
+	[string] 
+	#>
+	
 	$name = $name.Trim().ToLower()
 	
 	[string] $target = $this.Network.Name.ToUpper() + "_" + (Create-PascalCaseString -Words $name)
@@ -924,18 +931,32 @@ hidden [Microsoft.HyperV.PowerShell.VirtualMachine] machineBuilder () {
 class Server : Automata {
 	<#
 	.SYNOPSIS
-		The Server class creates a VM which inherits it's base configuration and phyiscal properties from the Network class.
+	The Server class creates a VM which inherits it's base configuration and phyiscal properties from the Network class.
 
 	.DESCRIPTION
+	Server class creates a virtualmachine that is added to servers branch of a [VTRee].  Apart from having multiple interfaces 
+	a [Server] object can have a storage array
 
-	.FUNCTIONALITY 
+	.PARAMETER OperatingSystem
+	The value from [ServerOSVersion]
+
+	.PARAMETER Roles
+	A list of flags from [ServerRoles] enum
+
+	.PARAMETER UserInterface
+	The user interface of the server operating system
+
+	.PARAMETER ExtraStorageSize
+	[int] which can be in the range of 10-100 GB.  The default value is 0
+	
+	.PARAMETER ExtraDisks
+	[int] The number of disks in the storage array.
 	#>
 
  	#------------------ Properties  -------------------#
 	[ServerOSVersion] $OperatingSystem
 	[ServerRoles] $Roles
 	[UserInterface] $UserInterface
-
 
 	[ValidateRange(10,100)]
     [Int] $ExtraStorageSize
@@ -948,7 +969,7 @@ class Server : Automata {
 	Server () : base() {}
 
 	Server ([string] $name, [int] $memoryGigs, [int] $diskGigs, $network) : base($name, $memoryGigs, $diskGigs, $network) { 
-		$this.init([ServerOSVersion]::server2016, [ServerRoles]::None, [UserInterface]::Core, 0, 0)
+		$this.init([ServerOSVersion]::server2019, [ServerRoles]::None, [UserInterface]::Core, 0, 0)
 	}
 
 	hidden [void] init ([ServerOSVersion] $osVersion, [ServerRoles] $roles, [UserInterface] $interface, [int] $gigs, [int] $disks) {
@@ -956,18 +977,53 @@ class Server : Automata {
 		$this.Roles = $roles
 		$this.UserInterface = $interface
 		$this.Path = $this.pathBuilder()
+		$this.Machine = $this.vmBuilder()
+<#
 		$this.Machine = $this.machineBuilder()
 		$this.mediaLoader()
 
-		$this.Network.Tree.addLeaves("servers", $this.Machine)
+		$this.Network.Tree.addLeaves([TraversalDestination]::Servers, $this.Machine)
 		$this.Address = $this.Network.hostAddress($this.Network.size())
 		$this.Notes = $this.noteBuilder()
+#>
 
 	} # <--- close init
 
 
 	#------------------ Methods -------------------#
+	[Microsoft.HyperV.PowerShell.VirtualMachine] vmBuilder () {
+		[Microsoft.HyperV.PowerShell.VirtualMachine] $vm = $null
+		[string] $isoPath = $this.selectInstallMedia()
+
+		$vm = $this.machineBuilder()
+		Add-VMDvdDrive -VM $vm -Path $isoPath -Confirm:$false
+		Set-VMFirmware -VM $vm -BootOrder (Get-VMDvdDrive -VM $vm), (Get-VMHardDiskDrive -VM $vm), (Get-VMNetworkAdapter -VM $vm)
+
+		$this.Network.Tree.addLeaves([TraversalDestination]::Servers, $vm)
+		$this.Address = $this.Network.hostAddress($this.Network.size())
+		$this.Notes = $this.noteBuilder()
+
+		Set-VM -VM $vm -Notes $this.Notes
+		return $vm
+
+	} # <--- close builder
+
+
 	[void] extraStorage([int] $rawGigs, [int] $diskCount) {
+		<#
+		.SYNOPSIS
+		Sets the values of $ExtraDisks, and $ExtraStorageSize fileds
+
+		.Description
+		If the [Server].[UsertInterface] is not Nano ths method changes the values of ExtraStorageSize and ExtraDisks if they were previously zero
+		then it invokes [Server].buildNas() to create the physical disks and attachm them to the virtual machine.
+
+		.PARAMETER rawGigs
+		[int]The number of gigabytes 
+
+		.PARAMETER diskCount
+		[int] How many disks are in the array
+		#>
 		<#
 		[string []] $invalidRoles = "ca", "router"
 
@@ -978,17 +1034,28 @@ class Server : Automata {
 		}
 #>
 		if ($this.UserInterface -eq [UserInterface]::Nano) {
-            throw $this.GetType() + " <" + $this.HostName + "> configured with " + $this.UserInterface.ToString() + " shell is not compatible with a storage array"
+            [string] $message = $this.GetType() + " <" + $this.HostName + "> configured with " + $this.UserInterface.ToString() 
+			$message = $message + " shell is not compatible with a storage array"
+			throw $message
+			exit 50064
         }
+
+		if ( $this.ExtraDisks -ne 0 -and $this.ExtraStorageSize -ne 0 ) {
+			[string] $message = "The storage array for " + $this.GetType() + "<" + $this.Hostname + "> has already been set to "
+			$message = $message + $($this.ExtraStorageSize) + "GB with " + $($this.ExtraDisks) + " disks."
+			throw $message
+			exit 50065
+		}
 
 		$this.ExtraStorageSize = $rawGigs
 		$this.ExtraDisks = $diskCount
 		$this.buildNas()
 
+
 	} # <--- close extraStorage
 
 
-	[void] mediaLoader () {
+	[string] selectInstallMedia () {
 		[string] $isoPath = [string]::Empty
 
 		if ($this.OperatingSystem -eq [ServerOSVersion]::server2016) {
@@ -1003,13 +1070,7 @@ class Server : Automata {
 			$isoPath = $global:SERVER_2022_ISO_PATH
 		}
 
-		Add-VMDvdDrive -VM $this.Machine -Path $isoPath -Confirm:$false
-
-		[hashtable] $params = @{
-			VM = $this.Machine
-			BootOrder = (Get-VMDvdDrive -VM $this.Machine), (Get-VMHardDiskDrive -VM $this.Machine), (Get-VMNetworkAdapter -VM $this.Machine)
-		} 
-		Set-VMFirmware @params 
+		return $isoPath
 
 	} # <--- close mediaLoader
 
@@ -1088,22 +1149,34 @@ class Server : Automata {
 	} # <--- close noteBuilder
 
 
+	[void] addRole([ServerRoles] $newRole) {
+		
+		if ($this.Roles -contains $newRole) {
+			throw $this.GetType() + " " + $this.Hostname + " already has the " + $newRole.ToString() + " role"
+		}
+		$this.Roles += $newRole
+
+	} # <--- close roleSets
+
+
 	#------------------ Static Methods -------------------#
 
 
 } # <--- end Server class
 
 
-
 #############################------- Define the WORKSTATION CLASS -------#############################
 class Workstation : Automata {
 	<#
 	.SYNOPSIS
-		The Server class creates a VM which inherits it's base configuration and phyiscal properties from the Network class.
+	The Workstation class is used to create Automata objects that are clients in a network 
 
 	.DESCRIPTION
+	The class creates virtual nachines that run a client operating system in a network.  Valid operating systems
+	are listed in the [WorkstationOsVersion] enum
 
-	.FUNCTIONALITY 
+	.PARAMETER OPeratingSystem
+	An instance of the [WorkstationOSVersion] enum
 	#>
 
  	#------------------ Properties  -------------------#
@@ -1113,7 +1186,6 @@ class Workstation : Automata {
 	#------------------ Constructors  -------------------#
 	Workstation () : base() {}
 
-
 	Workstation ([string] $name, $network) : base($name, 1, 60, $network) { 
 		$this.init([WorkstationOSVersion]::Windows10)
 	}
@@ -1122,17 +1194,29 @@ class Workstation : Automata {
 		$this.init([WorkstationOSVersion]::Windows10)
 	}
 
+	Workstation ([string] $name, [WorkstationOSVersion] $osVersion, [int] $memoryGigs, [int] $diskGigs, [Network] $network) : base($name, $memoryGigs, $diskGigs, $network) { 
+		$this.init([WorkstationOSVersion] $osVersion)
+	}
+
 	hidden [void] init ([WorkstationOSVersion] $operatingSystem) {
 		$this.OperatingSystem = $operatingSystem
 
 		$this.Path = $this.pathBuilder()
-		$this.Machine = $this.builder()
+		$this.Machine = $this.vmBuilder()
 
 	} # <--- close init
 
 
 	#------------------ Methods -------------------#
-	[Microsoft.HyperV.PowerShell.VirtualMachine] builder () {
+	[Microsoft.HyperV.PowerShell.VirtualMachine] vmBuilder () {
+		<#
+		.SYNOPSIS
+		Creates the virtualmachine for a Workstation instance
+
+		.DESCRIPTION
+		Invokes Automata.machineBuilder() to create the virtualmachine and sets values for parent class fields.
+
+		#>
 		[Microsoft.HyperV.PowerShell.VirtualMachine] $vm = $null
 		[string] $isoPath = $global:WINDOWS_10_ISO_PATH
 
@@ -1140,7 +1224,7 @@ class Workstation : Automata {
 		Add-VMDvdDrive -VM $vm -Path $isoPath -Confirm:$false
 		Set-VMFirmware -VM $vm -BootOrder (Get-VMDvdDrive -VM $vm), (Get-VMHardDiskDrive -VM $vm), (Get-VMNetworkAdapter -VM $vm)
 
-		$this.Network.Tree.addLeaves("workstations", $vm)
+		$this.Network.Tree.addLeaves([TraversalDestination]::Workstations, $vm)
 		$this.Address = $this.Network.hostAddress($this.Network.size())
 		$this.Notes = $this.noteBuilder()
 
@@ -1155,6 +1239,14 @@ class Workstation : Automata {
 		return $text
 
 	} # <--- close toString
+
+
+	[System.Xml.XmlAttributeCollection] toXML () {
+		[System.Xml.XmlAttributeCollection] $attributes = $null
+
+		return $attributes
+
+	} # <--- close toXML
 
 
 	#------------------ Helper Functions -------------------#

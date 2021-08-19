@@ -1,0 +1,95 @@
+<Objs Version="1.1.0.1" xmlns="http://schemas.microsoft.com/powershell/2004/04">
+  <Obj RefId="0">
+    <TN RefId="0">
+      <T>VTree</T>
+      <T>System.Object</T>
+    </TN>
+    <ToString>VTree</ToString>
+    <Props>
+      <S N="Name">stimulation</S>
+      <Obj N="Terminator" RefId="1">
+        <TN RefId="1">
+          <T>Microsoft.HyperV.PowerShell.VMGroup</T>
+          <T>Microsoft.HyperV.PowerShell.VirtualizationObject</T>
+          <T>System.Object</T>
+        </TN>
+        <ToString>VMGroup (Name = 'stimulation_terminator') [InstanceId = '8d1028a5-59de-4e22-b7a2-ba0e64e09107']</ToString>
+        <Props>
+          <S N="Name">stimulation_terminator</S>
+          <G N="InstanceId">8d1028a5-59de-4e22-b7a2-ba0e64e09107</G>
+          <S N="GroupType">ManagementCollectionType</S>
+          <Nil N="VMMembers" />
+          <Obj N="VMGroupMembers" RefId="2">
+            <TN RefId="2">
+              <T>System.Collections.ObjectModel.ReadOnlyCollection`1[[Microsoft.HyperV.PowerShell.VMGroup, Microsoft.HyperV.PowerShell.Objects, Version=10.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+              <T>System.Object</T>
+            </TN>
+            <LST>
+              <S>VMGroup (Name = 'stimulation_root') [InstanceId = 'a7310e44-c9b2-49bb-b5c6-b0137b031dd8']</S>
+            </LST>
+          </Obj>
+          <S N="CimSession">CimSession: .</S>
+          <S N="ComputerName">TAXILA</S>
+          <B N="IsDeleted">false</B>
+        </Props>
+      </Obj>
+      <Obj N="Root" RefId="3">
+        <TNRef RefId="1" />
+        <ToString>VMGroup (Name = 'stimulation_root') [InstanceId = 'a7310e44-c9b2-49bb-b5c6-b0137b031dd8']</ToString>
+        <Props>
+          <S N="Name">stimulation_root</S>
+          <G N="InstanceId">a7310e44-c9b2-49bb-b5c6-b0137b031dd8</G>
+          <S N="GroupType">ManagementCollectionType</S>
+          <Nil N="VMMembers" />
+          <Obj N="VMGroupMembers" RefId="4">
+            <TNRef RefId="2" />
+            <LST>
+              <S>VMGroup (Name = 'stimulation_servers') [InstanceId = '00807d31-b632-4ec9-ad95-54d5606a77a3']</S>
+              <S>VMGroup (Name = 'stimulation_workstations') [InstanceId = '7307c4a3-c352-4e80-b5c8-e603f43ba474']</S>
+            </LST>
+          </Obj>
+          <S N="CimSession">CimSession: .</S>
+          <S N="ComputerName">TAXILA</S>
+          <B N="IsDeleted">false</B>
+        </Props>
+      </Obj>
+      <Obj N="Servers" RefId="5">
+        <TNRef RefId="1" />
+        <ToString>VMGroup (Name = 'stimulation_servers') [InstanceId = '00807d31-b632-4ec9-ad95-54d5606a77a3']</ToString>
+        <Props>
+          <S N="Name">stimulation_servers</S>
+          <G N="InstanceId">00807d31-b632-4ec9-ad95-54d5606a77a3</G>
+          <S N="GroupType">VMCollectionType</S>
+          <Obj N="VMMembers" RefId="6">
+            <TN RefId="3">
+              <T>System.Collections.ObjectModel.ReadOnlyCollection`1[[Microsoft.HyperV.PowerShell.VirtualMachine, Microsoft.HyperV.PowerShell.Objects, Version=10.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]]</T>
+              <T>System.Object</T>
+            </TN>
+            <LST />
+          </Obj>
+          <Nil N="VMGroupMembers" />
+          <S N="CimSession">CimSession: .</S>
+          <S N="ComputerName">TAXILA</S>
+          <B N="IsDeleted">false</B>
+        </Props>
+      </Obj>
+      <Obj N="Workstations" RefId="7">
+        <TNRef RefId="1" />
+        <ToString>VMGroup (Name = 'stimulation_workstations') [InstanceId = '7307c4a3-c352-4e80-b5c8-e603f43ba474']</ToString>
+        <Props>
+          <S N="Name">stimulation_workstations</S>
+          <G N="InstanceId">7307c4a3-c352-4e80-b5c8-e603f43ba474</G>
+          <S N="GroupType">VMCollectionType</S>
+          <Obj N="VMMembers" RefId="8">
+            <TNRef RefId="3" />
+            <LST />
+          </Obj>
+          <Nil N="VMGroupMembers" />
+          <S N="CimSession">CimSession: .</S>
+          <S N="ComputerName">TAXILA</S>
+          <B N="IsDeleted">false</B>
+        </Props>
+      </Obj>
+    </Props>
+  </Obj>
+</Objs>
