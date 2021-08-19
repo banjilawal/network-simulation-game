@@ -531,9 +531,9 @@ class Network {
 	[IPAddress] $ID
 
 	[ValidateRange(1,31)]
-	[Int] $MaskLength
+	[int] $MaskLength
 
-	[Int] $Capacity
+	[int] $Capacity
 	[Microsoft.HyperV.PowerShell.VMSwitch] $Switch
 
 
@@ -541,11 +541,11 @@ class Network {
 	Network () { }
 
 	Network ([string] $rootName) { $this.Init($rootName, ($this.randomIPAddress()), 25) }
-	Network ([string] $rootName, [Int] $maskLength) { $this.Init($rootName, ($this.randomIPAddress()), $maskLength) }
-	Network ([string] $rootName, [IPAddress] $seedAddress, [Int] $maskLength ) { $this.Init($rootName, $seedAddress, $maskLength) }
+	Network ([string] $rootName, [int] $maskLength) { $this.Init($rootName, ($this.randomIPAddress()), $maskLength) }
+	Network ([string] $rootName, [IPAddress] $seedAddress, [int] $maskLength ) { $this.Init($rootName, $seedAddress, $maskLength) }
 
 
-	hidden init ([string] $rootName, [IPAddress] $seedAddress, [Int] $maskLength) {
+	hidden init ([string] $rootName, [IPAddress] $seedAddress, [int] $maskLength) {
 		$rootName = $rootName.Trim().ToLower()
 
 		if ($this.exists($rootName) -eq  $true) {
@@ -570,8 +570,21 @@ class Network {
 
 
 	#------------------ Setters  -------------------#
-
 	[ipaddress] hostAddress ([Int32] $counter) {
+		<#
+		.SYNOPSIS
+		Gives the ipaddress that can be assigned to a host in the network
+
+		.DESCRIPTION
+		[Network]::hostAddress() is an iterator that calculates the host's ipaddress by adding an [int] to the network id
+
+		.PARAMETER counter
+		[int]: A number between 1 and [Network].Capacity
+
+		.OUTPUTS
+		[ipaddress]
+		#>
+
 		[string] $dottedDecimal = [string]::Empty
 		[string] $lambda = [string]::Empty
 
@@ -607,7 +620,17 @@ class Network {
 
 
 	#------------------ Methods -------------------#
-	[Int] size () {
+	[int] size () {
+		<#
+		.SYNOPSIS
+		The number of hosts in the network.
+
+		.DESCRIPTION
+		The [Network]::size() will always be less than or equal to the [Network].Capacity  parameter
+
+		.OUTPUTS
+		[int]
+		#>
 
 		return $this.Tree.size()
 
@@ -670,15 +693,25 @@ class Network {
 
     } # <--- close erase
 
-	[void] delete () {
 
-        if ($this.switchActive() -eq $true) { 
-			throw "Deletion of <$($this.Name)> $($this.getType()) fsiled.  There are actve connections to $($this.Switch.getType()) to <$($this.Switch.Name)>"
+	[void] delete () {
+		<#
+		.SYNOPSIS
+		Destorys [Network] instance.
+
+		.DESCRIPTION
+		Removes the switch, tree, and all computers in Hyper-V ad on the disk
+		#>
+
+        if ($this.switchActive() -eq $true) {
+			[string] $message = "Deletion of <$($this.Name)> $($this.getType()) failed."
+			$message = $message + "  There are actve connections to $($this.Switch.getType()) to <$($this.Switch.Name)>"
+			throw $message
 			exit 7700
 		}
 
         if ($this.Tree.isEmpty() -eq $false) {
-            throw "Deletion of <$($this.Name)> $($this.getType()) fsiled.  " + $this.Tree.getType() + " " + $this.Tree.Root.Name + " is not empty"
+            throw "Deletion of <$($this.Name)> $($this.getType()) failed.  " + $this.Tree.getType() + " " + $this.Tree.Root.Name + " is not empty"
 			exit 7800
         }
 		
@@ -710,7 +743,7 @@ class Network {
 		$SeedAddress.IPAddressToString.split(".") | ForEach-Object { $addressBits = $addressBits + $( [Convert]::ToString($_, 2).PadLeft(8, "0") ) }
 		$addressBits = $addressBits.Trim()
 	
-		for ( [Int] $index = 0; $index -lt 32; $index++ ) {
+		for ( [int] $index = 0; $index -lt 32; $index++ ) {
 			[string] $addressBit = $addressBits.Substring($index, 1)
 			[string] $maskBit = $maskBits.Substring($index, 1)
 	
@@ -750,6 +783,18 @@ class Network {
 
 
 	hidden [Microsoft.HyperV.PowerShell.VMSwitch] switchBuilder () {
+		<#
+		.SYNOPSIS
+		Creates the switch for the [Network] instance
+
+		.DESCRIPTION
+		Creates a private Hyper-V switch and writes the network information in CIDR.  
+
+		.OUTPUTS
+		[VMSwitch]
+	
+		#>
+
 		[Microsoft.HyperV.PowerShell.VMSwitch] $sw = $null
 
 		[string] $switchName = $this.Name.ToUpper() + "_Private"
@@ -786,7 +831,20 @@ class Network {
 
 	#------------------ Static Methods -------------------#
 	static [String[]] networks () {
-		[String []] $names = [String []] (Get-ChildItem -Path $global:BASE_NETWORK_PATH | Where-Object { $_.PSIsContainer -eq $true } | Select-Object Name)   
+		<#
+		.SYNOPSIS
+		Returns the names of all the networks with hosts.
+
+		.DESCRIPTION
+		Searchs the network home directory and returns the names of all directories that have been created.  Network diretctories are only created
+		when servers or workstations are added to them.  However the implementation will need to be check to see if the a swith has already been created
+		with the network's name as its' prefix
+		#>
+
+		[string []] $names = [string]::Empty
+		#[Microsoft.HyperV.PowerShell.VMSwitch] $switches = $null
+		
+		$names = (Get-ChildItem -Path $global:BASE_NETWORK_PATH | Where-Object { $_.PSIsContainer -eq $true } | Select-Object Name)   
 
 		return $names
 
@@ -799,19 +857,44 @@ class Network {
 class Automata {
 	<#
 	.SYNOPSIS
-		The Server class creates a VM which inherits it's base configuration and phyiscal properties from the Network class.
-
+	[Automata] is the parent of [Server] and [Workstation] classes.  This class should not be instantiated directly.
+	
 	.DESCRIPTION
+	Severs and workstation have some common properties and methods which they inherit from [Automata].  The base virtual
+	machine is created in by [Automata]::machineBuilder(). They are destroyed with [Automata]::delete()
 
-	.FUNCTIONALITY 
+	.PARAMETER Hostname
+	[string]: The computer's name in Window OS.  Also the name used in DNS
+
+	.PARAMETER Path
+	[string]: Location of [Automata] instance's virtual machine and disks.
+
+	.PARAMETER Notes
+	[string]: The information in the notes section of a Hyper-V guest.
+
+	.PARAMETER DiskGigaBytes
+	[int]: size of virtual disk
+
+	.PARAMETER MemoryGigaBytes
+	[int]: amount of memory
+
+	.PARAMETER Network
+	[Network]: variable holds the Hyper-V switch, and [VTree] [Automata] objects are assigned to.  The network's ID is used to get the 
+	next available ipaddress that can be assigned to a host
+	
+	.PARAMETER Address
+	[IPAddress]: The ipaddress the host is assigned in the network.
+
+	.PARAMETER Machine
+	[VirtualMachine]: The actual Hyper-V guest 
 	#>
 
  	#------------------ Properties  -------------------#
 	 [string] $Hostname
 	 [string] $Path
 	 [string] $Notes
-	 [Int] $DiskGigaBytes
-	 [Int] $MemoryGigaBytes
+	 [int] $DiskGigaBytes
+	 [int] $MemoryGigaBytes
 
 	 [Network] $Network
 	 [ipaddress] $Address
@@ -832,6 +915,15 @@ class Automata {
 
 	#------------------ Methods -------------------#
 	[void] delete() {
+		<#
+		.SYNOPSIS
+		Removes a virtual machine from the system.
+
+		.DESCRIPTION
+		If the virtual machine exists it will be deleted then any disks and directories assigned to the object are also removed.
+		After the Hyper-V guest is removed all the fields are set to null to avoid any problems with orphaned class instances
+		#>
+
 		[bool] $vmExists = $null -ne  (Get-VM | Where-Object { $_.name -eq $this.Machine.Name } )
 
 		if ( $vmExists -eq $false ) {
@@ -859,6 +951,18 @@ class Automata {
 
 #------------------ Helper Functions -------------------#
 hidden [string] pathBuilder ([string] $name) {
+	<#
+	.SYNOPSIS
+	Creates a child directory under the network's path.
+
+	.DESCRIPTION
+	Creates a directory for the [Automata] instance's virtual machine and its disks in specific network directory.  This should be converted to
+	an abstract method since hosts should be in either the workstation or servers subdirectories
+
+	.PARAMETER name
+	[string]: The hostname of [Automata] instance
+	#>
+
 	[string] $networkPath = $this.Network.Path
 	[string] $machineDirectory = (Create-PascalCaseString -Words $name) + "\"
 
@@ -878,7 +982,7 @@ hidden [string] hostNameHandler ([string] $name) {
 	.PARAMETER name
 	[string] 
 	#>
-	
+
 	$name = $name.Trim().ToLower()
 	
 	[string] $target = $this.Network.Name.ToUpper() + "_" + (Create-PascalCaseString -Words $name)
@@ -893,6 +997,15 @@ hidden [string] hostNameHandler ([string] $name) {
 
 
 hidden [string] vmNameHandler () {
+	<#
+	.SYNOPSIS
+	Returns the name of the machine in Hyper-V
+
+	.DESCRIPTION
+	Creates a descriptive name for the virtual machine so we know which namespace the machine is assigned to.  The vmName is always in 
+	the format: NETWORKNAME_Hostname
+	#>
+
 	[string] $vmName = $null
 	$vmName = $this.Network.Name.ToUpper() + "_" + (Create-PascalCaseString -Words $this.Hostname)
 
@@ -902,6 +1015,14 @@ hidden [string] vmNameHandler () {
 
 
 hidden [Microsoft.HyperV.PowerShell.VirtualMachine] machineBuilder () {
+	<#
+	.SYNOPSIS
+	Creates a virtual machine and assigns it to the [Automata] instance.
+
+	.DESCRIPTION
+	The method returns the newly built virtual machine to the [Automata] object and sets its notes
+	#>
+
 	[Microsoft.HyperV.PowerShell.VirtualMachine] $vm = $null
 
 	[hashtable] $params = @{
@@ -959,10 +1080,10 @@ class Server : Automata {
 	[UserInterface] $UserInterface
 
 	[ValidateRange(10,100)]
-    [Int] $ExtraStorageSize
+    [int] $ExtraStorageSize
 
 	[ValidateRange(2,12)]
-    [Int] $ExtraDisks
+    [int] $ExtraDisks
 
 
 	#------------------ Constructors  -------------------#
@@ -992,6 +1113,12 @@ class Server : Automata {
 
 	#------------------ Methods -------------------#
 	[Microsoft.HyperV.PowerShell.VirtualMachine] vmBuilder () {
+		<#
+		.SYNOPSIS
+
+		.DESCRIPTION
+		#>
+
 		[Microsoft.HyperV.PowerShell.VirtualMachine] $vm = $null
 		[string] $isoPath = $this.selectInstallMedia()
 
@@ -1024,6 +1151,7 @@ class Server : Automata {
 		.PARAMETER diskCount
 		[int] How many disks are in the array
 		#>
+
 		<#
 		[string []] $invalidRoles = "ca", "router"
 
