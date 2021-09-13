@@ -16,7 +16,7 @@ $global:SERVER_2022_ISO_PATH = "C:\Users\griot\Downloads\Windows_Server_2022_202
 
 $global:WINDOWS_10_ISO_PATH = "C:\Users\griot\Downloads\Windows_10_2020_04_14.ISO"
 
-[String []] $global:destinations= ("servers", "workstations")
+[String []] $global:destinations = ("servers", "workstations")
 [string []] $global:leafCategories = ("servers", "workstations", "all")
 [string []] $global:nodeSuffixes = ("terminator", "root", "servers", "workstations")
 
@@ -978,7 +978,10 @@ class Server : Automata {
 		}
 #>
 		if ($this.UserInterface -eq [UserInterface]::Nano) {
-            throw $this.GetType() + " <" + $this.HostName + "> configured with " + $this.UserInterface.ToString() + " shell is not compatible with a storage array"
+			[string] $message = $this.GetType() + " <" + $this.HostName + "> configured with " + $this.UserInterface.ToString() 
+			$message = $message + " shell is not compatible with a storage array"
+
+			throw $message
         }
 
 		$this.ExtraStorageSize = $rawGigs
