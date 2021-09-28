@@ -1,5 +1,8 @@
 using namespace Microsoft.HyperV.*
 using namespace Microsoft.Hyper-V.*
+using namespace Microsoft.Management.Infrastructure.CimInstance
+
+using assembly 'C:\Program Files\PowerShell\7\Microsoft.Management.Infrastructure.dll'
 using assembly 'C:\Windows\Microsoft.NET\assembly\GAC_MSIL\Microsoft.HyperV.PowerShell.Objects\v4.0_10.0.0.0__31bf3856ad364e35\Microsoft.HyperV.PowerShell.Objects.dll'
 using assembly 'C:\Windows\Microsoft.NET\assembly\GAC_MSIL\Microsoft.HyperV.PowerShell.Cmdlets\v4.0_10.0.0.0__31bf3856ad364e35\Microsoft.HyperV.PowerShell.Cmdlets.dll'
 using assembly 'C:\Windows\Microsoft.NET\assembly\GAC_MSIL\Microsoft.Virtualization.Client.Common.Types\v4.0_10.0.0.0__31bf3856ad364e35\Microsoft.Virtualization.Client.Common.Types.dll'
@@ -531,12 +534,12 @@ class Network {
 	[VTree] $Tree
 
 	[ValidateNotNullOrEmpty()]
-	[IPAddress] $ID
+	[ipaddress] $ID
 
 	[ValidateRange(1,31)]
-	[Int] $MaskLength
+	[int] $MaskLength
 
-	[Int] $Capacity
+	[int] $Capacity
 	[Microsoft.HyperV.PowerShell.VMSwitch] $Switch
 
 
@@ -559,9 +562,9 @@ class Network {
 		$this.Tree = [VTree]::new($rootName)
 
 		$this.MaskLength = $maskLength
-		$this.ID = $this.getPrefix($seedAddress)
 		$this.Capacity = ( [Math]::Pow(2,(32 - $this.MaskLength)) - 2 )	
 		$this.Path = $global:BASE_NETWORK_PATH + $rootName.ToUpper() + "\"	
+		$this.ID = $this.getID($seedAddress)
 		$this.Switch = $this.switchBuilder()
 
 	} # <--- close init
@@ -573,10 +576,9 @@ class Network {
 
 
 	#------------------ Setters  -------------------#
-
 	[ipaddress] hostAddress ([Int32] $counter) {
 		[string] $dottedDecimal = [string]::Empty
-		[string] $lambda = [string]::Empty
+		[string] $dottedBits = [string]::Empty
 
 		[ipaddress] $hostAddress = $null
 	
@@ -590,16 +592,16 @@ class Network {
 			[Array]::Reverse($octets) 
 		} 
 		$hostNumber = [BitConverter]::ToUInt32($octets, 0)
-		$hostNUmber += $counter
+		$hostNumber += $counter
 
 		$hexValue = [Convert]::ToString($hostNumber, 16)
 
-		for ( $index = 0; $index -lt 7; $index +=2) { 
-			$lambda = $lambda + $hexValue.ToString().Substring($index, 2) + "." 
+		for ( [int] $index = 0; $index -lt 7; $index +=2) { 
+			$dottedBits = $dottedBits + $hexValue.ToString().Substring($index, 2) + "." 
 		}
-		$lambda = $lambda.TrimEnd('.').Trim()
+		$dottedBits = $dottedBits.TrimEnd('.').Trim()
 
-		$lambda.Split('.') | ForEach-Object { 
+		$dottedBits.Split('.') | ForEach-Object { 
 			$dottedDecimal = $dottedDecimal + $([Convert]::ToInt32($_, 16)).ToString() + "." 
 		}
 		$hostAddress = [ipaddress] $dottedDecimal.trim(".").Trim()
@@ -704,6 +706,65 @@ class Network {
 
 
 	#------------------ Helper Functions -------------------#
+	[ipaddress] getID ([ipaddress] $ipAddress) {
+		[string] $dottedNetMaskBits = [string]::Empty
+		[string] $networkBits = [string]::Empty
+		[string] $addressBits = [string]::Empty
+		[string] $networkID = [string]::Empty
+		[string] $bits = [string]::Empty
+	
+		[string []] $parts = @()
+		[string] $rawNetMaskbits = ('1' * $this.MaskLength).PadRight(32, '0')
+	
+		$ipAddress.IPAddressToString.split(".") | ForEach-Object { 
+			$bits = $bits + $( [Convert]::ToString($_, 2).PadLeft(8, "0") ) 
+		}
+		$bits = $bits.Trim()
+	
+		$addressBits = $bits.Substring(0, 1)
+		$dottedNetMaskBits = $rawNetMaskbits.Substring(0, 1)
+	
+		for ([int] $index = 1; $index -lt $bits.Length; $index++) {
+			[string] $maskBit = $rawNetMaskbits.Substring($index, 1)
+			[string] $bit = $bits.Substring($index, 1)
+	
+			if ($index -eq 7 -or $index -eq 15 -or $index -eq 23) { 
+				$maskBit = $rawNetMaskbits.Substring( ($index), 1) + "."
+				$bit = $bits.Substring($index, 1) + "." 
+			}
+			$addressBits = $addressBits + $bit
+			$dottedNetMaskBits = $dottedNetMaskBits + $maskBit
+		  #  "current addressBits: " + $addressBits
+		}
+		#"`nmaskBits: " + $dottedMaskBits + "`naddressBits: "  + $addressBits
+	
+		for ([int] $index = 0; $index -lt $addressBits.Length; $index++) {
+			[string] $addressBit = $addressBits.Substring($index, 1)
+			[string] $maskBit = $dottedNetMaskBits.Substring($index, 1)
+	
+			[string] $networkBit = $addressBit
+	
+			if ($addressBit -ne $maskBit) { 
+				$networkBit = "0"
+			}
+	
+			$networkBits = $networkBits + $networkBit
+		}
+		#"`nnetworkBits: " + $networkBits
+	
+		$parts = $networkBits.Split(".")
+		foreach ($part in $parts) {
+			[string] $decimal = [Convert]::ToInt32( $part, 2 )
+			$networkID = $networkID + $decimal + "."
+		} 
+		#"`nnetworkID: " + $networkID
+		$networkID = $networkID.TrimEnd(".").Trim()
+	
+		return ([ipaddress] $networkID)
+	
+	} # <--- close getID
+
+
 	hidden [IPAddress] getPrefix ([IPAddress] $seedAddress) {
 		[string] $addressBits = [string]::Empty
 		[string] $networkBits = [string]::Empty
@@ -811,6 +872,7 @@ class Automata {
 
  	#------------------ Properties  -------------------#
 	 [string] $Hostname
+	 [string] $ID
 	 [string] $Path
 	 [string] $Notes
 	 [Int] $DiskGigaBytes
@@ -861,6 +923,70 @@ class Automata {
 	} # <--- close delete
 
 
+	hidden [string] hostID () {
+		[string] $dottedHostMask = [string]::Empty
+		[string] $addressBits = [string]::Empty 
+		[string] $hostBits = [string]::Empty
+		[string] $hostID = [string]::Empty
+		[string] $bits = [string]::Empty
+	
+		[int] $totalHostBits = 32 - $this.Network.MaskLength
+		#"total hostBits: " + $totalHostBits
+	
+		[string] $rawHostMaskBits = ('1' * $totalHostBits).PadLeft(32, '0')
+		[string []] $parts = @()
+	
+		#"raw HostMask: " + $rawHostMask
+	
+		$this.Address.IPAddressToString.split(".") | ForEach-Object { 
+			$bits = $bits + $( [Convert]::ToString($_, 2).PadLeft(8, "0") ) 
+		}
+		$bits = $bits.Trim()
+	
+		$addressBits = $bits.Substring(0, 1)
+		$dottedHostMask = $rawHostMaskBits.Substring(0, 1)
+	
+		for ([int] $index = 1; $index -lt $bits.Length; $index++) {
+			[string] $hostMaskBit = $rawHostMaskBits.Substring($index, 1)
+			[string] $bit = $bits.Substring($index, 1)
+	
+			if ($index -eq 7 -or $index -eq 15 -or $index -eq 23) { 
+				$hostMaskBit = $rawHostMaskBits.Substring($index, 1) + "."
+				$bit = $bits.Substring($index, 1) + "." 
+			}
+			$addressBits = $addressBits + $bit
+			$dottedHostMask = $dottedHostMask + $hostMaskBit
+		  #  "current addressBits: " + $addressBits
+		}
+		#"`ndottedHostMask: " + $dottedHostMask + "`naddressBits: "  + $addressBits
+	
+		for ([int] $index = 0; $index -lt $addressBits.Length; $index++) {
+			[string] $addressBit = $addressBits.Substring($index, 1)
+			[string] $hostMaskBit = $dottedHostMask.Substring($index, 1)
+	
+			[string] $hostBit = $addressBit
+	
+			if ($addressBit -ne $hostMaskBit) { 
+				$hostBit = "0"
+			}
+			$hostBits = $hostBits + $hostBit
+		}
+		$hostBits = $hostBits.TrimEnd(".").Trim()
+		#"hostBits: " + $hostBits
+	
+		$parts = $hostBits.Split(".")
+		foreach ($part in $parts) {
+			[string] $decimal = [Convert]::ToInt32( $part, 2 )
+			$hostID = $hostID + $decimal + "."     
+		}
+		$hostID = $hostID.TrimEnd(".").Trim("0.")
+		#"`nhostID: " + $hostID
+	
+		return $hostID
+	
+	} # <--- close Get-HostID
+
+
 #------------------ Helper Functions -------------------#
 hidden [string] pathBuilder ([string] $name) {
 	[string] $networkPath = $this.Network.Path
@@ -906,6 +1032,7 @@ hidden [Microsoft.HyperV.PowerShell.VirtualMachine] machineBuilder () {
 		SwitchName = $this.Network.Switch.Name
 	}
 	$vm = New-VM @params
+	Rename-VMNetworkAdapter -VM $vm -NewName "Internal"
 	
 	$this.Notes = $this.noteBuilder()
 	Set-VM -VM $vm -Notes $this.Notes
@@ -948,7 +1075,7 @@ class Server : Automata {
 	Server () : base() {}
 
 	Server ([string] $name, [int] $memoryGigs, [int] $diskGigs, $network) : base($name, $memoryGigs, $diskGigs, $network) { 
-		$this.init([ServerOSVersion]::server2016, [ServerRoles]::None, [UserInterface]::Core, 0, 0)
+		$this.init([ServerOSVersion]::server2022, [ServerRoles]::None, [UserInterface]::Core, 0, 0)
 	}
 
 	hidden [void] init ([ServerOSVersion] $osVersion, [ServerRoles] $roles, [UserInterface] $interface, [int] $gigs, [int] $disks) {
@@ -961,6 +1088,7 @@ class Server : Automata {
 
 		$this.Network.Tree.addLeaves("servers", $this.Machine)
 		$this.Address = $this.Network.hostAddress($this.Network.size())
+		$this.ID = $this.hostID()
 		$this.Notes = $this.noteBuilder()
 
 	} # <--- close init

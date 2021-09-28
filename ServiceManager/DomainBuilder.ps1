@@ -75,21 +75,7 @@ class LDAPDomain {
             Install-WindowsFeature $global:BASE_LDAP_ROLE -Confirm:$false -IncludeManagementTools -IncludeAllSubFeature
         }
 
-        [hashtable] $params = @{
-            DomainName = $this.Name + $this.TLD.ToString()
-            DomainNetbiosName = $this.Name
-            SafeModeAdministratorPassword = "password"
-            SYSVOLPath = $global:SYSVOL_DATABASE_PATH
-            DatabasePath = $global:DATA_LOGGING_PATH
-            LogPath = $global:DATA_LOGGING_PATH
-            ForestMode = $global:LDAP_FUNCTIONAL_LEVEL
-            DomainMode = $global:LDAP_FUNCTIONAL_LEVEL
-            NoRebootOnCompletion = $false
-            InstallDns = $false
-            Confirm = $false
-            Force = $true
-        }
-        Install-ADDSForest @params
+
 
     } # <--- close adInstaller
 
