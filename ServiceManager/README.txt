@@ -1,0 +1,1 @@
+The ServiceManager classes are used to install and configure the following services on an instance of the [Automata]::[Server] classes

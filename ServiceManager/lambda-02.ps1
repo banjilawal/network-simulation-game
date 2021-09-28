@@ -1,74 +1,124 @@
-$forwardZone = ( Get-DnsServerZone | Where-Object {$_.IsReverseLookupZone -eq $false -and $_.ZoneType -eq "Primary" -and $_.ZoneName -notlike "TrustAnchors" } ) | Get-Random
- $record = Get-DnsServerResourceRecord -ZoneName $forwardZone.ZoneName | Where-Object {$_.HostName -notlike "*@*" }  | Get-Random
- $record.HostName
+class BinaryTree {
+    [int] $Capacity
+    [string []] $NodeList
 
- $reverseZones = Get-DnsServerZone | Where-Object {$_.IsReverseLookupZone -eq $true -and $_.ZoneType -eq "Primary" -and $_.ZoneName -notmatch "(0|127|255).in*"}
+    BinaryTree () {}
 
- [hashtable] $hash = @{}
+    BinaryTree ([string []] $items) {
+        $this.Capacity = 1024
 
- foreach ($zone in $reverseZones) {
-     [string []] $data = @()
+        if ($items.Length -gt $this.Capacity) {
+            throw "The number of items in the list exceeds " + $($this.Capacity) + " organizational units"
+        }
 
-     Get-DnsServerResourceRecord -ZoneName $zone.ZoneName |  Where-Object {$_.HostName -notlike "*@*"} | ForEach-Object {
-         $data += $_.RecordData.PtrDomainName
-     }
-     $hash.Add($zone.ZoneName, $data)
- }
+        $this.NodeList = $this.arrayToBinaryTree($items)
 
- [int] $hashRow = 0
- [bool] $found = $false
- [string] $reverseZoneName = [string]::Empty
+    } # <--- close BinaryTree
 
- #$hash
 
- while ($hashRow -lt $hash.Count -and $found -eq $false) {
-     foreach ($key in $hash.keys) {
-         [int] $arrayIndex = 0
-         while ($arrayIndex -lt $hash[$key].Count -and $found -eq $false) {
-            if ( $hash[$key][$arrayIndex] -like ($record.HostName + "*") ) {
-                $found = $true
-                $reverseZoneName = $key
+    [string []] arrayToBinaryTree ([string []] $items) {
+        [string []] $tree = [int[]]::new($this.Capacity)
+
+        if ($this.noDuplicates($items) -eq $true) {
+
+        }
+
+
+
+
+
+        return $tree
+
+    } # <--- close makeTree
+
+
+    [void] add ([string] $node) {
+
+    } # <--- close add
+
+
+    [void] add ([string] $parent, [string] $child) {
+
+    } # <--- close add
+
+
+    [int] location ([string] $target) {
+        [int] $location = $null
+
+        if ($this.NodeList -contains $target) {
+            $location = $this.NodeList.IndexOf($target)
+        }
+        return $location
+
+    } # <--- close traverse
+
+
+    hidden [bool] noDuplicates ([string []] $items) {
+        [int] $index = 0
+        [bool] $duplicates = $false
+ 
+        [hashtable] $map = $this.frequencyMapper($items)
+
+        while ($index -lt $map.Count -and $duplicates -eq $false) {
+            if ($map[$index].Values -gt 1) {
+                $duplicates = $true
             }
-            $arrayIndex++ 
-         }
+            $index++
+        }
+        return $duplicates
 
-     }
-    $hashRow++ 
- }
+    } # <--- close noDuplicates
 
 
- <#
+    hidden [bool] noDuplicates ([string] $target) {
+        [bool] $duplicate = $false
+        [hashtable] $map = $this.frequencyMapper()
 
- while ($hashRow -lt $hash.Count -and $found -eq $false) {
-    [string] $text = "hashrow: " + $($hashRow)
+        if ( ($map.Keys -contains $target) -and ($map.$target -gt 0) ) {
+            $duplicate = $true
+        }
 
- foreach ($key in $hash.keys) {
-        [int] $arrayIndex = 0
-        $text += " $key"
-        $text
-        $hash[$key]
-        
-       # while ($arrayIndex -lt $hash.Values.Length -and $found -eq $false) {
-        #    $arrayIndex++
-            "`tarrayIndex: " + $($arrayIndex) #+ " " + $hash.data
-            <#
-              if ($hash.Values[$arrayIndex] -like ($record.HostName + ".*") ) {
-                $found = $true
-                $reverseZoneName = $key
+        return $duplicate
+
+    } # <--- close noDuplicates
+
+
+    hidden [hashtable] frequencyMapper ([string []] $items) {
+        [hashtable] $map = @{}
+
+        foreach ($item in $items) {
+            [int] $frequency = $this.countOccurences($item)
+            $map.Add($item, $frequency)
+        }
+        return $map
+
+    } # <--- close frequencyMapper  
+
+
+    hidden [hashtable] frequencyMapper () {
+        [hashtable] $map = @{}
+
+        foreach ($node in $this.NodeList) {
+            [int] $frequency = $this.countOccurences($node)
+            $map.Add($node, $frequency)
+        }
+        return $map
+
+    } # <--- close frequencyMapper
+
+
+    hidden [int] countOccurences ([string] $target) {
+        [int] $occurences = 0
+
+        foreach ($node in $this.NodeList) {
+            if ($node -eq $target) {
+                $occurences++
             }
-            #>
-       # }
-        #>
- #   }
+        }
 
- #   $hashRow++
+        return $occurences
 
- #}
+    } # <--- close countOccurences
 
- #>
-[string] $result =  "The randommly selected host named " + $record.HostName
-$result += ", with ipaddress " + $record.RecordData.IPv4Address.ToString() 
-$result += " was found in FLZ: " + $forwardZone.ZoneName 
-$result += " and its' corresponding RLZ: " + $reverseZoneName 
 
-$result
+} # <--- end class BinaryTree
