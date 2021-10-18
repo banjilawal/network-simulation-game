@@ -1,35 +1,47 @@
 class BinaryTree {
+    [string] $Name
     [int] $Capacity
-    [string []] $NodeList
+    [int] $Size
+    [string []] $Vertices
 
     BinaryTree () {}
 
-    BinaryTree ([string []] $items) {
-        $this.Capacity = 1024
+    BinaryTree ([string] $name, [string []] $items) {
+        $this.Capacity = 128
 
         if ($items.Length -gt $this.Capacity) {
             throw "The number of items in the list exceeds " + $($this.Capacity) + " organizational units"
         }
 
-        $this.NodeList = $this.arrayToBinaryTree($items)
+        $this.Name = $name
+        $this.Size = $items.Length
+        $this.Vertices = [string[]]::new($this.Capacity)
+
+        $this.convertArray($items)
 
     } # <--- close BinaryTree
 
 
-    [string []] arrayToBinaryTree ([string []] $items) {
-        [string []] $tree = [int[]]::new($this.Capacity)
+    [void] convertArray ([string []] $items) {
 
-        if ($this.noDuplicates($items) -eq $true) {
-
+        if ($this.noDuplicates($items) -eq $false) {
+            throw "This array cannot be converted to a tree.  It contains duplicate items"
+            exit(123400)
         }
 
+        $this.Vertices[0] = $items[0]
+        #write-host "level " $(0) ": " $this.Vertices[0] "`r"
+        for ([int] $index = 0; $index -lt $items.Length; $index++) {
+            [int] $left = (2 * $index) + 1
+            [int] $right = (2 * $index) + 2
 
+            $this.Vertices[$left] = $items[$left]
+            $this.Vertices[$right] = $items[$right]
 
+           # write-host "level " $($index + 1) ": " $this.Vertices[$left] "`t" $this.Vertices[$right] 
+        }
 
-
-        return $tree
-
-    } # <--- close makeTree
+    } # <--- close convertArray
 
 
     [void] add ([string] $node) {
@@ -46,26 +58,43 @@ class BinaryTree {
         [int] $location = $null
 
         if ($this.NodeList -contains $target) {
-            $location = $this.NodeList.IndexOf($target)
+            $location = $this.Vertices.IndexOf($target)
         }
         return $location
 
     } # <--- close traverse
 
 
+    [string] display () {
+        [string] $text = "Tree Name: " + $this.Name + " Size:  " + $($this.Size) + " " + $this.Vertices.GetType() + "`n"
+
+        <#
+        $text += "`t`t`t" + $($this.Verices[0])
+        for ([int] $index = 0; $index -lt $this.Size; $index++) {
+            [int] $left = (2 * $index) + 1
+            [int] $right = (2 * $index) + 2    
+            
+            $text += "`t`t`t" + $($this.Vertices[$left]) + "`t" + $($this.Vertices[$right])
+        }
+        #>
+        return $text
+
+    } # <--- close display
+
+
     hidden [bool] noDuplicates ([string []] $items) {
         [int] $index = 0
-        [bool] $duplicates = $false
+        [bool] $noDuplicates = $true
  
         [hashtable] $map = $this.frequencyMapper($items)
 
-        while ($index -lt $map.Count -and $duplicates -eq $false) {
+        while ($index -lt $map.Count -and $noDuplicates -eq $true) {
             if ($map[$index].Values -gt 1) {
-                $duplicates = $true
+                $noDuplicates = $false
             }
             $index++
         }
-        return $duplicates
+        return $noDuplicates
 
     } # <--- close noDuplicates
 
@@ -122,3 +151,16 @@ class BinaryTree {
 
 
 } # <--- end class BinaryTree
+
+[string []] $departments = @("human resources", "marketing", "finance", "research & development", "sales")
+$departments += @("admin", "management", "it", "sysadmin", "support", "print", "web", "accounting", "invoices", "payable", "payroll")
+
+[string] $name = [string] $name = Get-Content "C:\Dropbox\scripts\datasets\classical\classical" | Get-Random
+
+#[BinaryTree] $tree = [BinaryTree]::new()
+#$tree
+
+$tree = [BinaryTree]::new($name, $departments)
+$tree.display()
+#$departments
+#$tree.display()
